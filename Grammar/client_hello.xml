@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+	
+	<!-- Define our file format DDL -->
+	<DataModel name="Client_hello">		
+
+	<block name="client_hello_packet" minOccurs="1" maxOccurs="1">
+		<String name="Client_Version" value="fefd" valueType="hex" token="true" mutable="false"/> 
+  		<number name="Random" size="256" endian="Big" signed="false" />
+		<number name="Session_ID" size="16" endian="Big" signed="false" />
+		<number name="Cookie" size="16" endian="Big" signed="false" />
+		<number name="Cipher_Suite" size="544" endian="Big" signed="false" />
+		<number name="Compression_Methods" size="32" endian="Big" signed="false" />
+		<number name="Extentions_Length" size="32" endian="Big" signed="false" />
+		<number name="Extentions_Server_Name" size="432" endian="Big" signed="false" />
+		<number name="Extentions_Status_Request" size="144" endian="Big" signed="false" />
+		<number name="Extentions_Supported_Group" size="224" endian="Big" signed="false" />
+		<number name="Extentions_EC_Point_Formats" size="96" endian="Big" signed="false" />
+		<number name="Extentions_Signature_Algorithms" size="352" endian="Big" signed="false" />
+		<number name="Extentions_Renegotiation_Info" size="80" endian="Big" signed="false" />
+		<number name="Extentions_SCT" size="64" endian="Big" signed="false" />
+
+	</block>		
+
+	</DataModel>
+	
+	<!-- Define a simple state machine that will write the file and 
+		then launch a program using the FileWriterLauncher publisher -->
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+
+			<!-- Write out contents of file -->
+			<Action type="output">
+				<DataModel ref="Client_hello" />
+ 			<!-- This is our sample file to read in -->
+               		 	<Data fileName="/dev/null"/>
+				</Action>
+			
+			<!-- Close file -->
+			<Action type="close" />			
+			
+		</State>
+	</StateModel>
+	
+	
+	
+	<Test name="Default">				
+		<StateModel ref="State"/>
+		
+		<!-- Configure our publisher with correct filename to write too -->
+		<Publisher class="File">
+			<Param name="FileName" value="clienthello" />
+			<Param name="debugger" value="true"/>
+		</Publisher>
+
+		<Logger class="Filesystem">
+			<Param name="Path" value="Logs" />
+		</Logger>
+	</Test>		
+	
+</Peach>
+<!-- end -->
