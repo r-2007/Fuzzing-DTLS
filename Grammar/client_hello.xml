@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+	
+	<!-- Define our file format DDL -->
+	<DataModel name="Client_hello">	
+
+	<Block name="Ethernet" minOccurs="1" maxOccurs="1">
+
+	<Number name="Destination_address" valueType="hex" size="48" signed="false" />
+	<Number name="Source_address" valueType="hex" size="48" signed="false" />
+	<Number name="Ethernet_type" valueType="hex" size="16" signed="false" />
+
+	</Block>
+
+
+
+
+	<Block name="IPV" minOccurs="1" maxOccurs="1">
+
+	<Number name="Version" valueType="hex" size="8" signed="false" />
+	<Number name="Explicit_congestion_notification" valueType="hex" size="8" signed="false" />
+	<Number name="Total_Length" valueType="hex" size="16" signed="false" />
+	<Number name="Identification" valueType="hex" size="16" signed="false" />	
+	<Flags  name="fragment_offset" size="16"/> 
+	<Number name="Time_to_live" valueType="hex" size="8" signed="false" />
+	<Number name="Protocol" valueType="hex" size="8" signed="false" />
+	<Number name="Header_checksum" valueType="hex" size="16" signed="false" />
+	<Number name="Source" valueType="hex" size="32" signed="false" />
+	<Number name="Destination" valueType="hex" size="32" signed="false" />
+
+	</Block>
+
+
+
+
+	<Block name="UDP" minOccurs="1" maxOccurs="1">
+
+	<Number name="Source_Port" size="16" valueType="hex" signed="false" />
+	<Number name="Destination_Port" valueType="hex" size="16" signed="false" />
+	<Number name="Length" valueType="hex" size="16" signed="false" />
+	<Number name="Checksum" valueType="hex" size="16" signed="false" />
+	
+	</Block>	
+
+
+
+
+	<Block name="DTLS_Record_Layer" minOccurs="1" maxOccurs="1">
+
+	<Number name="Content_type" valueType="hex" size="8" signed="false" />
+	<Number name="Record_layer_version" value="fe fd" valueType="hex" size="16" signed="false" mutable="false"/>
+	<Number name="Epoch" valueType="hex" size="16" signed="false" />
+	<Number name="Sequence_Number" valueType="hex" size="48" signed="false" />
+	<Number name="Length_of_DTLS_record_data" valueType="hex" size="16" signed="false" />
+	
+	</Block>
+
+
+
+
+	<Block name="Client_Hello" minOccurs="1" maxOccurs="1">
+	
+	<Number name="Handshake_type" valueType="hex" size="8" signed="false" />
+	<Number name="Length_of_handshake_msg" valueType="hex" size="24" signed="false" />
+	<Number name="Msg_sequence" valueType="hex" size="16" signed="false" />
+	<Number name="Fragment_offset" valueType="hex" size="24" signed="false" />
+	<Number name="Fragment_Length" valueType="hex" size="24" signed="false" />
+	<Number name="Handshake_version" value="fe fd" valueType="hex" size="16" signed="false" mutable="false" />
+	<Blob name="Random" valueType="hex" length="32" />
+	<Number name="Session_ID_Length" valueType="hex" size="8" signed="false" />
+	<Number name="Cookie_Length" valueType="hex" size="8" signed="false" />
+
+	<Number name="Cipher_suites_Length" valueType="hex" size="16" signed="false" >
+	<Relation type="size" of="Cipher_suites" />
+	</Number>	
+	<Blob name="Cipher_suites" valueType="hex" />
+
+	<Number name="Compression_method_Length" valueType="hex" size="8" signed="false" >
+	<Relation type="size" of="Compression_methods" />
+	</Number>	
+	<Blob name="Compression_methods" valueType="hex" />
+	
+	</Block>		
+
+	</DataModel>
+
+
+
+
+	
+	<!-- Define a simple state machine that will write the file and 
+		then launch a program using the FileWriterLauncher publisher -->
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+
+			<!-- Write out contents of file -->
+			<Action type="output">
+				<DataModel ref="Client_hello" />
+ 			<!-- This is our sample file to read in -->
+               		 	<Data fileName="/dev/null"/>
+				</Action>
+			
+			<!-- Close file -->
+			<Action type="close" />			
+			
+		</State>
+	</StateModel>
+	
+	
+	
+	<Test name="Default">				
+		<StateModel ref="State"/>
+		
+		<!-- Configure our publisher with correct filename to write too -->
+		<Publisher class="File">
+			<Param name="FileName" value="clienthello" />
+			<Param name="debugger" value="true"/>
+		</Publisher>
+
+		<Logger class="Filesystem">
+			<Param name="Path" value="Logs" />
+		</Logger>
+	</Test>		
+	
+</Peach>
+<!-- end -->
