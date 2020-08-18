@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+	
+	<!-- Define our file format DDL -->
+	<DataModel name="Client_hello">	
+
+	<Block name="DTLS_Record_Layer" minOccurs="1" maxOccurs="1">
+
+			<Number name="Content_type" value="16" valueType="hex" size="8" signed="false" mutable="false" endian="Big"/>
+			<Number name="Record_layer_version" value="fe fd" valueType="hex" size="16" signed="false" mutable="false" endian="Big"/>
+			<Number name="Epoch" size="16" signed="false" endian="Big"/>
+			<Number name="Sequence_Number" size="48" signed="false" endian="Big"/>
+			<Number name="Length_of_DTLS_record_data" size="16" signed="false" endian="Big">
+				<Relation type="size" of="Client_Hello_Block"  />
+			</Number>	
+	
+	</Block>
+
+
+
+				<Block name="Client_Hello_Block" minOccurs="1" maxOccurs="1">
+				
+					<Number name="Handshake_type" value="01" valueType="hex" size="8" signed="false" endian="Big"/>
+					
+					<Number name="Length_of_handshake_msg" size="24" signed="false" endian="Big">
+						<Relation type="size" of="Client_Hello_Content_Block"  />
+					</Number>
+					
+					<Number name="Msg_sequence" size="16" signed="false" endian="Big"/>
+					<Number name="Fragment_offset" size="24" signed="false" endian="Big"/>
+					
+					<Number name="Fragment_Length" size="24" signed="false" endian="Big">
+						<Relation type="size" of="Client_Hello_Content_Block"  />
+					</Number>
+				
+								<Block name="Client_Hello_Content_Block" minOccurs="1" maxOccurs="1">
+								
+									<Number name="Handshake_version" value="fe fd" valueType="hex" size="16" signed="false" mutable="false" />
+									<Blob name="Random" length="32" />
+									
+
+									<Number name="Session_ID_Length" size="8" signed="false" >	
+									<Relation type="size" of="Session_ID" />
+									</Number>	
+									<String name="Session_ID" />		
+																		
+									<Number name="Cookie_Length" size="8" signed="false" endian="Big">
+									<Relation type="size" of="Cookie"  />	
+									</Number>
+									<String name="Cookie"  />
+									
+									<Number name="Cipher_Suites_Length" size="16" signed="false" endian="Big">
+									<Relation type="size" of="Cipher_Suites_ChoiceBlock" />
+									</Number>
+									<Block name="Cipher_Suites_ChoiceBlock" minOccurs="1" maxOccurs="1">
+										<Choice name="Cipher_Suites_Choice" minOccurs="1" maxOccurs="18">
+											<Number name="TLS_PSK_WITH_AES_128_CCM_8" value="C0 A8" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_RSA_EXPORT_WITH_RC4_40_MD5" value="00 03" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_RSA_WITH_RC4_128_MD5" value="00 04" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_RSA_WITH_RC4_128_SHA" value="00 05" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_DH_anon_EXPORT_WITH_RC4_40_MD5" value="00 17" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_DH_anon_WITH_RC4_128_MD5" value="00 18" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_KRB5_WITH_RC4_128_SHA" value="00 20" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_KRB5_WITH_RC4_128_MD5" value="00 24" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_KRB5_EXPORT_WITH_RC4_40_SHA" value="00 28" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_KRB5_EXPORT_WITH_RC4_40_MD5" value="00 2B" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_PSK_WITH_RC4_128_SHA" value="00 8A" valueType="hex" size="16" signed="false" mutable="false" />										
+											<Number name="TLS_DHE_PSK_WITH_RC4_128_SHA" value="00 8E" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_RSA_PSK_WITH_RC4_128_SHA" value="00 92" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_ECDH_ECDSA_WITH_RC4_128_SHA" value="C0 02" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_ECDHE_ECDSA_WITH_RC4_128_SHA" value="C0 07" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_ECDH_RSA_WITH_RC4_128_SHA" value="C0 0C" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_ECDHE_RSA_WITH_RC4_128_SHA" value="C0 11" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_ECDH_anon_WITH_RC4_128_SHA" value="C0 16" valueType="hex" size="16" signed="false" mutable="false" />
+											<Number name="TLS_ECDHE_PSK_WITH_RC4_128_SHA" value="C0 33" valueType="hex" size="16" signed="false" mutable="false" />
+										
+									</Choice>
+									</Block>
+									
+									<Number name="Compression_methods_Length" size="8" signed="false" endian="Big" >	
+									<Relation type="size" of="Compression_methods" />
+									</Number>										
+									<String name="Compression_methods" value="0"/>
+								
+								
+								
+								</Block>
+				</Block>	
+
+
+	</DataModel>
+
+
+
+
+	
+	<!-- Define a simple state machine that will write the file and 
+		then launch a program using the FileWriterLauncher publisher -->
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+
+			<!-- Write out contents of file -->
+			<Action type="output">
+				<DataModel ref="Client_hello" />
+			<!--input file -->
+			<!--	<Data fileName="../input"/> 	-->			            		 	
+			</Action>
+			
+			<!-- Close file -->
+			<Action type="close" />			
+			
+		</State>
+	</StateModel>
+	
+	
+	
+	<Test name="Default">				
+		<StateModel ref="State"/>
+		
+		<!-- Configure our publisher with correct filename to write too -->
+		<Publisher class="File">
+			<Param name="FileName" value="Client_hello" />			
+		</Publisher>
+
+		<Logger class="Filesystem">
+			<Param name="Path" value="Logs" />
+		</Logger>
+	</Test>		
+	
+</Peach>
+<!-- end -->
+
+
+
+
