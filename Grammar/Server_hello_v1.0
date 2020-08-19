@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+	
+	<!-- Define our file format DDL -->
+	<DataModel name="Server_hello">	
+
+	<Block name="DTLS_Record_Layer" minOccurs="1" maxOccurs="1">
+
+			<Number name="Content_type" value="16" valueType="hex" size="8" signed="false" mutable="false" endian="Big"/>
+			<Number name="Record_layer_version" value="fe fd" valueType="hex" size="16" signed="false" mutable="false" endian="Big"/>
+			<Number name="Epoch" size="16" signed="false" endian="Big"/>
+			<Number name="Sequence_Number" size="48" signed="false" endian="Big"/>
+			<Number name="Length_of_DTLS_record_data" size="16" signed="false" endian="Big">
+				<Relation type="size" of="Server_Hello_Block"  />
+			</Number>	
+	
+	</Block>
+
+
+
+				<Block name="Server_Hello_Block" minOccurs="1" maxOccurs="1">
+				
+					<Number name="Handshake_type" value="02" valueType="hex" size="8" signed="false" endian="Big"/>
+					
+					<Number name="Length_of_handshake_msg" size="24" signed="false" endian="Big">
+						<Relation type="size" of="Server_Hello_Content_Block"  />
+					</Number>
+					
+					<Number name="Msg_sequence" size="16" signed="false" endian="Big"/>
+					<Number name="Fragment_offset" size="24" signed="false" endian="Big"/>
+					
+					<Number name="Fragment_Length" size="24" signed="false" endian="Big">
+						<Relation type="size" of="Server_Hello_Content_Block"  />
+					</Number>
+				
+								<Block name="Server_Hello_Content_Block" minOccurs="1" maxOccurs="1">
+								
+									<Number name="Handshake_version" value="fe fd" valueType="hex" size="16" signed="false" mutable="false" />
+									<Blob name="Random" length="32" />
+									<Number name="Session_ID_Length" size="8" signed="false" >	
+									<Relation type="size" of="Session_ID" />
+									</Number>	
+									<String name="Session_ID" />								
+									
+									<Number name="Cipher_Suite" size="16" signed="false" endian="Big" />		
+									<Number name="Compression_method" size="8" signed="false" endian="Big" />									
+								
+								</Block>
+				</Block>	
+
+
+	</DataModel>
+
+
+
+
+	
+	<!-- Define a simple state machine that will write the file and 
+		then launch a program using the FileWriterLauncher publisher -->
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+
+			<!-- Write out contents of file -->
+			<Action type="output">
+				<DataModel ref="Server_hello" />
+			<!--input file -->
+			<!--	<Data fileName="../input"/> 	-->			            		 	
+			</Action>
+			
+			<!-- Close file -->
+			<Action type="close" />			
+			
+		</State>
+	</StateModel>
+	
+	
+	
+	<Test name="Default">				
+		<StateModel ref="State"/>
+		
+		<!-- Configure our publisher with correct filename to write too -->
+		<Publisher class="File">
+			<Param name="FileName" value="Server_hello" />			
+		</Publisher>
+
+		<Logger class="Filesystem">
+			<Param name="Path" value="Logs" />
+		</Logger>
+	</Test>		
+	
+</Peach>
+<!-- end -->
+
+
+
+
