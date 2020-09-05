@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+		
+	<Defaults>
+        <Number   signed="false" valueType="hex" endian="Big"/>
+    </Defaults>
+	
+    <DataModel name="ClientHelloRecord">
+	<Block name="DTLS_Record_Layer" minOccurs="1" maxOccurs="1">	
+		<Number name="Content_type" value="16"  size="8"  mutable="false" />
+		<Number name="Record_layer_version" value="fe fd"  size="16"  mutable="false" />
+		<Number name="Epoch" size="16" />
+		<Number name="Sequence_Number" size="48" />
+        <Number name="Length_of_DTLS_record_data" size="16"  >
+				<Relation type="size" of="Client_Hello_Block"  />
+		</Number>
+	</Block>
+	
+	<Block name="Client_Hello_Block" minOccurs="1" maxOccurs="1">
+		<Number name="Handshake_type" value="01"  size="8"/>
+		<Number name="Length_of_handshake_msg" size="24"  >
+			<Relation type="size" of="Client_Hello_Content_Block"  />
+		</Number>
+						
+		<Number name="Msg_sequence" size="16"  />
+		<Number name="Fragment_offset" size="24"  />
+						
+		<Number name="Fragment_Length" size="24"  >
+			<Relation type="size" of="Client_Hello_Content_Block"  />
+		</Number>
+				
+			<Block name="Client_Hello_Content_Block" minOccurs="1" maxOccurs="1">
+				<Number name="Handshake_version" value="fe fd"  size="16"  mutable="false" />
+				<Blob name="Random" length="32" />
+				<Number name="Session_ID_Length" size="8"  >	
+					<Relation type="size" of="Session_ID" />
+				</Number>	
+				<String name="Session_ID" />	
+				<Number name="Cookie_Length" size="8"  >
+					<Relation type="size" of="Cookie"  />	
+				</Number>
+				<String name="Cookie"  />
+					<Number name="Cipher_Suites_Length" size="16"  >
+									<Relation type="size" of="Cipher_Suites_ChoiceBlock" />
+					</Number>
+									<Block name="Cipher_Suites_ChoiceBlock" minOccurs="1" maxOccurs="1">
+										<Choice name="Cipher_Suites_Choice" minOccurs="1" maxOccurs="18">
+											<Number name="TLS_PSK_WITH_AES_128_CCM_8" value="C0 A8"  size="16"  mutable="false" />
+											<Number name="TLS_RSA_EXPORT_WITH_RC4_40_MD5" value="00 03"  size="16"  mutable="false" />
+											<Number name="TLS_RSA_WITH_RC4_128_MD5" value="00 04"  size="16"  mutable="false" />
+											<Number name="TLS_RSA_WITH_RC4_128_SHA" value="00 05"  size="16"  mutable="false" />
+											<Number name="TLS_DH_anon_EXPORT_WITH_RC4_40_MD5" value="00 17"  size="16"  mutable="false" />
+											<Number name="TLS_DH_anon_WITH_RC4_128_MD5" value="00 18"  size="16"  mutable="false" />
+											<Number name="TLS_KRB5_WITH_RC4_128_SHA" value="00 20"  size="16"  mutable="false" />
+											<Number name="TLS_KRB5_WITH_RC4_128_MD5" value="00 24"  size="16"  mutable="false" />
+											<Number name="TLS_KRB5_EXPORT_WITH_RC4_40_SHA" value="00 28"  size="16"  mutable="false" />
+											<Number name="TLS_KRB5_EXPORT_WITH_RC4_40_MD5" value="00 2B"  size="16"  mutable="false" />
+											<Number name="TLS_PSK_WITH_RC4_128_SHA" value="00 8A"  size="16"  mutable="false" />										
+											<Number name="TLS_DHE_PSK_WITH_RC4_128_SHA" value="00 8E"  size="16"  mutable="false" />
+											<Number name="TLS_RSA_PSK_WITH_RC4_128_SHA" value="00 92"  size="16"  mutable="false" />
+											<Number name="TLS_ECDH_ECDSA_WITH_RC4_128_SHA" value="C0 02"  size="16"  mutable="false" />
+											<Number name="TLS_ECDHE_ECDSA_WITH_RC4_128_SHA" value="C0 07"  size="16"  mutable="false" />
+											<Number name="TLS_ECDH_RSA_WITH_RC4_128_SHA" value="C0 0C"  size="16"  mutable="false" />
+											<Number name="TLS_ECDHE_RSA_WITH_RC4_128_SHA" value="C0 11"  size="16"  mutable="false" />
+											<Number name="TLS_ECDH_anon_WITH_RC4_128_SHA" value="C0 16"  size="16"  mutable="false" />
+											<Number name="TLS_ECDHE_PSK_WITH_RC4_128_SHA" value="C0 33"  size="16"  mutable="false" />
+										</Choice>	
+									</Block>
+									
+									<Number name="Compression_methods_Length" size="8"   >	
+									<Relation type="size" of="Compression_methods" />
+									</Number>										
+									<Number name="Compression_methods" value="0" size="8" />
+			</Block>
+			
+	</Block>
+	
+	
+    </DataModel> 
+	
+	<!-- Define a simple state machine that will write the file and 
+		then launch a program using the FileWriterLauncher publisher -->
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+
+			<!-- Write out contents of file -->
+			<Action type="output">
+				<DataModel ref="ClientHelloRecord" />
+			<!--input file -->
+			<Data fileName="/dev/null"/>	            		 	
+			</Action>			
+			<!-- Close file -->
+			<Action type="close" />			
+			
+		</State>
+	</StateModel>
+	
+	
+	
+	<Test name="Default">				
+		<StateModel ref="State"/>
+		
+		<!-- Configure our publisher with correct filename to write too -->
+		<Publisher class="File">
+			<Param name="FileName" value="Client_hello" />			
+		</Publisher>
+
+		<Logger class="Filesystem">
+			<Param name="Path" value="Logs" />
+		</Logger>
+	</Test>		
+	
+</Peach>
+<!-- end -->
+
+
+
+
