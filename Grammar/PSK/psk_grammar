@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+		
+	<Defaults>
+	    <Number signed="false" valueType="hex" endian="Big"/>
+	</Defaults>	
+
+   	<!--FRAGMENT DATAMODEL  -->   
+    <DataModel name="Fragment">
+        <Number name="Handshake_type"/>
+        <Number name="Handshake_length" size="24">
+            <Relation type="size" of="Fragment_payload" />
+		</Number>
+        <Number name="Handshake_message_sequence" size="16"/>
+        <Number name="Fragment_offset" size="24" />
+        <Number name="Fragment_length" size="24" >
+            <Relation type="size" of="Fragment_payload" />
+		</Number>		
+        <Blob name="Fragment_payload" />
+    </DataModel>
+
+	<!--  -->
+
+	<!-- ALL PACKETS PAYLOAD-->
+	<!-- Client hello -->
+	<DataModel name="Client_hello_payload" ref="Fragment" >
+		<Number name="Handshake_type" value="01" size="8" mutable="false" token="true" />
+    <Block name="Fragment_payload" >
+			<Number name="Handshake_version" value="fe fd" size="16" mutable="false" token="true" />
+        <Blob name="Random" length="32" />
+      <Number name="Session_ID_length" size="8" >	
+		   	<Relation type="size" of="Session_ID" />
+		  </Number>	
+		  <String name="Session_ID" />
+		  <Number name="Cookie_length" size="8"  >
+		  	<Relation type="size" of="Cookie"  />	
+		  </Number>
+		  <String name="Cookie" />   
+
+      <Number name="Cipher_suites_length" size="16" >
+		   	<Relation type="size" of="Cipher_suites_choice_block" />
+		  </Number>
+		   	<Block name="Cipher_suites_choice_block" >
+		   		<Choice name="Cipher_suites_choice" minOccurs="1" maxOccurs="5">						
+		   			<Number name="TLS_PSK_WITH_AES_128_CCM_8" value="C0 A8" size="16" mutable="false"/>
+						<Number name="TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8" value="C0 AE" size="16" mutable="false"/>
+						<Number name="NULL" value="00 00" size="16" mutable="false"/>
+						<Number name="TLS_RSA_WITH_ARIA_128_CBC_SHA256" value="C0 3C" size="16" mutable="false"/>
+						<Number name=" TLS_DHE_DSS_WITH_ARIA_128_CBC_SHA256" value="C0 42" size="16" mutable="false"/>
+		  		</Choice>	
+		   	</Block>  
+		    <Number name="Compression_methods_length" size="8" >	
+		      <Relation type="size" of="Compression_methods" />
+		    </Number>
+			<Choice name="Compression_methods" >
+				<Number name="Null" value="00" size="8" mutable="false" />
+			</Choice>
+		       
+        </Block>
+
+	</DataModel>
+
+	<!-- Hello verify request -->
+	<DataModel name="Hello_verify_payload" ref="Fragment">
+		<Number name="Handshake_type" value="03" size="8" mutable="false" token="true" />
+    <Block name="Fragment_payload" >
+		  <Number name="Handshake_version" value="fe fd" size="16" mutable="false" token="true" />
+      <Number name="Cookie_length" size="8"  >
+		   	<Relation type="size" of="Cookie"  />	
+		  </Number>
+		  <String name="Cookie" /> 
+    </Block>
+	</DataModel>
+
+	<!-- Server hello -->
+	<DataModel name="Server_hello_payload" ref="Fragment" >
+		<Number name="Handshake_type" value="02" size="8" mutable="false" token="true" />
+    <Block name="Fragment_payload" >
+			<Number name="Handshake_version" value="fe fd" size="16" mutable="false" token="true" />
+      <Blob name="Random" length="32" />
+      <Number name="Session_ID_length" size="8" />	
+      <Choice name="Cipher_suite" minOccurs="1" maxOccurs="5">
+		  	<Number name="NULL" value="00 00" size="16" mutable="false"/>
+		   	<Number name="TLS_PSK_WITH_AES_128_CCM_8" value="C0 A8" size="16" mutable="false"/>
+				<Number name="TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8" value="C0 AE" size="16" mutable="false"/>
+				<Number name="TLS_RSA_WITH_ARIA_128_CBC_SHA256" value="C0 3C" size="16" mutable="false"/>
+				<Number name=" TLS_DHE_DSS_WITH_ARIA_128_CBC_SHA256" value="C0 42" size="16" mutable="false"/>
+		  </Choice>	
+			<Choice>	      
+		    <Number name="Compression_method" size="8" value="00"/> 
+			</Choice>     
+        </Block>
+
+	</DataModel>
+
+	<!-- Server hello done-->
+	<DataModel name="Server_hello_done_payload" ref="Fragment" >
+		<Number name="Handshake_type" value="0e" size="8" mutable="false" token="true" />
+	</DataModel>
+
+	<!-- Client key exchange -->
+	<DataModel name="Client_key_exchange_payload" ref="Fragment" >
+		<Number name="Handshake_type" value="10" size="8" mutable="false" token="true" />
+		<Blob name="content" />
+	</DataModel>
+
+	<!-- Change cipher spec-->
+	<DataModel name="Change_cipher_spec_payload">
+    	<Number name="CCS_message" size="08" token="true" mutable="false" value="01"/>
+    	<Blob name="padding" />
+	</DataModel>
+
+		<!-- Handshake protocol -->
+	<DataModel name="Encrypted_handshake_message_payload">    	
+    	<Blob name="Content" />
+	</DataModel>
+
+	<!-- Alert -->
+	<DataModel name="Encrypted_alert_payload">
+    	<Number name="Level" size="16" token="true" mutable="false" value="00 01"/>
+    	<Blob name="Padding"/>
+	</DataModel>
+
+	<!-- Application -->
+	<DataModel name="Application_Payload">    	
+    	<Blob name="Application_data" />
+	</DataModel>	
+
+	<!-- -->
+
+	<!-- CHOICE DATAMODEL: TO SELECT PAYLOAD ACCORDING TO INPUT -->
+	<DataModel name="Record_payload" >			
+    <Choice name="Handshake_Payload" >
+    <Block name="Client_hello" ref="Client_hello_payload"/>
+		<Block name="Hello_verify_request" ref="Hello_verify_payload"/>
+		<Block name="Server_hello" ref="Server_hello_payload"/>
+		<Block name="Server_hello_done" ref="Server_hello_done_payload"/>		
+		<Block name="Client_key_exchange" ref="Client_key_exchange_payload"/>
+		<Block name="Change_cipher_spec" ref="Change_cipher_spec_payload"/>
+		<Block name="Encrypted_handshake_message" ref="Encrypted_handshake_message_payload"/>
+		<Block name="Encrypted_alert" ref="Encrypted_alert_payload"/>
+		<Block name="Application" ref="Application_Payload"/>
+    </Choice>
+	</DataModel>
+
+	<!--  -->
+
+	<!-- DTLS RECORD DATAMODEL. DATAMODEL THAT PRODUCES OUTPUT -->
+	<DataModel name="DTLS_record">	
+		<Choice name="Content_type" >
+			<Number name="Handshake" size="8" value="16" mutable="false" token="true" />
+    	<Number name="Change_CS" size="8" value="14" mutable="false" token="true" />
+    	<Number name="Alert" size="8" value="15" mutable="false" token="true" />
+			<Number name="Application" size="8" value="17" mutable="false" token="true" />        
+    	</Choice>
+		<Number name="Record_layer_version" value="fe fd" size="16" mutable="false"/>		
+		<Number name="Epoch" size="16" />				
+		<Number name="Sequence_number" size="48" />
+    <Number name="Length_of_dtls_data" size="16" >
+			<Relation type="size" of="Handshake_Payload" />				
+		</Number>
+		<Block name="payload" ref="Record_payload" />
+	</DataModel>
+
+	<!--  -->
+
+
+	<!-- Define a simple state machine that will write the file and 
+		then launch a program using the FileWriterLauncher publisher -->
+
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+			<!-- Write out contents of file -->
+			<Action type="output">
+				<DataModel ref="DTLS_record" />
+			<!--input file -->
+			<Data fileName="/dev/null"/>	            		 	
+			</Action>			
+			<!-- Close file -->
+			<Action type="close" />						
+		</State>
+	</StateModel>
+
+	<Test name="Default">	
+		<StateModel ref="State"/>
+		<!-- Configure our publisher with correct filename to write too -->
+		<Publisher class="File">
+			<Param name="FileName" value="repaired" />
+		</Publisher>
+		<Logger class="Filesystem">
+			<Param name="Path" value="Logs" />
+		</Logger>
+	</Test>	
+
+</Peach>
+
+<!-- end -->
