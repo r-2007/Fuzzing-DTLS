@@ -131,7 +131,7 @@
 
 	<!-- CHOICE DATAMODEL: TO SELECT PAYLOAD ACCORDING TO INPUT -->
 	<DataModel name="Record_payload" >			
-    <Choice name="Handshake_Payload" >
+    <Choice name="Content_Payload" >
     <Block name="Client_hello" ref="Client_hello_payload"/>
 		<Block name="Hello_verify_request" ref="Hello_verify_payload"/>
 		<Block name="Server_hello" ref="Server_hello_payload"/>
@@ -158,7 +158,7 @@
 		<Number name="Epoch" size="16" />				
 		<Number name="Sequence_number" size="48" />
     <Number name="Length_of_dtls_data" size="16" >
-			<Relation type="size" of="Handshake_Payload" />				
+			<Relation type="size" of="Content_Payload" />				
 		</Number>
 		<Block name="payload" ref="Record_payload" />
 	</DataModel>
