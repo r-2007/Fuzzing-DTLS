@@ -153,7 +153,7 @@
 		<Number name="Record_layer_version" value="fe fd" size="16" mutable="false"/>		
 		<Number name="Epoch" size="16" />				
 		<Number name="Sequence_number" size="48" />
-   		 <Number name="Length_of_dtls_data" size="16" >
+   		<Number name="Length_of_dtls_data" size="16" >
 			<Relation type="size" of="Content_Payload" />				
 		</Number>
 		<Block name="payload" ref="Record_payload" />
